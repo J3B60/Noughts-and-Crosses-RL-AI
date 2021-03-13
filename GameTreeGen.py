@@ -77,6 +77,8 @@ def MinimaxGen(Depth,board):
             TempBoard[emptyCellsRow[i],emptyCellsCol[i]] = currentPlayer#######NEWED TO FIX, NEED TO SET IT TO A COPY OTHERWISE THE CHANGE FROM ONE CHILD OF THIS PARENT NODE IS CARRIED OVER TO THE OTHER CHILD
         MinimaxGen(currentDepth,np.copy(TempBoard))
 
+
+####################################################################################################################################################
 ### THIS CODE TAKES TOO LONG, O(n^2) but for each depth
 def oldDuplicateNodeSearch():
     global ListOfNodes

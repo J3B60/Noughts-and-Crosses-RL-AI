@@ -1,81 +1,134 @@
 import numpy as np
 import math
+import random
 
-arena = np.zeros(shape=(3,3))#Tic-Tac-Toe Arena/Grid
-#Note 0 in grid is empty, 1 = X and -1 = O
+from readNPYorZ import readNPYorZ
+from compareRRGetStatePos import compareRRGetStatePos
+
+arena = np.zeros(shape=(3,3), dtype=int)#Tic-Tac-Toe Arena/Grid#Note 0 in grid is empty, 1 = X and 2 = O
 win = False #If winner then end program
 P1UserSymbol = 'O'#User Defaults to O
 P2UserSymbol = 'X'#User Defaults to X
 NumPlayer = 1#Number of Players Defaults to One
 
-#Create states
-AI_1_stateValuesDepth0 = np.zeros(shape=(9))#Depth 0 has 9 options, Depth 1 has 8, 2-7,3-6,4-5,5-4,6-3,7-2,8-1,9-0ie draw
-AI_1_stateValuesDepth1 = np.zeros(shape=(9,8))
-AI_1_stateValuesDepth2 = np.zeros(shape=(8,7))
-AI_1_stateValuesDepth3 = np.zeros(shape=(7,6))
-AI_1_stateValuesDepth4 = np.zeros(shape=(6,5))
-AI_1_stateValuesDepth5 = np.zeros(shape=(5,4))#####????????????
-AI_1_stateValuesDepth6 = np.zeros(shape=(4,3))
-AI_1_stateValuesDepth7 = np.zeros(shape=(3,2))
-AI_1_stateValuesDepth8 = np.zeros(shape=(2,1))
+GStates = readNPYorZ("GameStatesWOreflecrot.npz")
+GSvalues = [readNPYorZ("StateValuesP1.npz"),readNPYorZ("StateValuesP2.npz")]#Both Players in a list for easy usability
+
+epsilon = 0.3#Exploration Rate
+alpha = 0.369#Learning Rate
 
 #--User Input Function--
-def PlayerInput(CurrentPlayer):
-    if arena[XPosIn -1, YPosIn -1] == 0:
-        arena[XPosIn -1, YPosIn -1] = CurrentPlayer
-        return True#Return Change made
-    return False#Else return Change not made
+#def BoardInput(CurrentPlayer, XPosIn, YPosIn, board):#Alternative PlayerInput but for AI
+    #if board[XPosIn -1, YPosIn -1] == 0:
+        #board[XPosIn -1, YPosIn -1] = CurrentPlayer
+    #return board#Return Changes or  made
 
-#--Check if win is True--
-def ifWin(CurrentPlayer):
-    global arena
-    sym = CurrentPlayer
-    if (
-        np.all(arena[0,0:3] == sym) or#Horizontal1
-        np.all(arena[1,0:3] == sym) or#Horizontal2
-        np.all(arena[2,0:3] == sym) or#Horizontal3
-        np.all(arena[0:3,0] == sym) or#Vertical1
-        np.all(arena[0:3,1] == sym) or#Vertical2
-        np.all(arena[0:3,2] == sym) or#Vertical3
-        (arena[0,0] == sym and arena[1,1] == sym and arena[2,2] == sym) or#Diag1
-        (arena[2,0] == sym and arena[1,1] == sym and arena[0,2] == sym)#Diag2
-        ):#If the combination is right
-        return True#Return the winners symbol
-    else:
-            return False
+from ifWin import ifWin
 
 #--Check if Draw is True--
-def ifDraw(Localarena):
-    if np.all(Localarena != 0):
-        return True
-    else:
-        return False
+from ifDraw import ifDraw
 
 ############The important AI bit###############################
-
-
+#THIS BIT IS OLD
 #AI_input is a recursive function
 #Everytime this function is called, it alternates between the TurnsPlayer
 #TurnsPlayer starts as the AI player's number
-def AI_input(TurnsPlayer, decisionArena): #CurrentPlayer is just AI's number in arena #This is the Agent
-    ifWin(TurnsPlayer)
-    ifDraw(decisionArena)
-    listOfEmptyPos = []#Get list of the empty positions
-    for row in range(decisionArena[:,0].size):
-        for col in range(decisionArena[0,:].size):
-            if not (decisionArena[row,col] == 1 or decisionAarena[row,col] == 2):
-                listOfEmptyPos.append((row,col))#x,y coordinates of positions in a tuple
+#def AI_input(TurnsPlayer, decisionArena): #CurrentPlayer is just AI's number in arena #This is the Agent
+#    ifWin(TurnsPlayer)
+#    ifDraw(decisionArena)
+#    listOfEmptyPos = []#Get list of the empty positions
+#    for row in range(decisionArena[:,0].size):
+#        for col in range(decisionArena[0,:].size):
+#            if not (decisionArena[row,col] == 1 or decisionAarena[row,col] == 2):
+#                listOfEmptyPos.append((row,col))#x,y coordinates of positions in a tuple#
 
-    for pos in listOfEmptyPos:
-        decisionArena = arena#Just so nothing is changed on the original board until AI decision has been made
-        #-check if move good-
-        decisionArena[pos[0],pos[2]] = TurnsPlayer
+#    for pos in listOfEmptyPos:#
+#        decisionArena = arena#Just so nothing is changed on the original board until AI decision has been made
+#        #-check if move good-
+#        decisionArena[pos[0],pos[2]] = TurnsPlayer
         
+#THIS BIT IS THE NEW BIT, #MinimaxGen() from GameTreeGen.py
+def MinimaxGen(Depth,board):
+    
+    currentDepth = Depth-1
+    if currentDepth ==0:#Ignore last node with branch=1, only go up to parent node with two branches, the leaves are the end states
+        return
 
+    if currentDepth%2 == 0:
+        currentPlayer = 2
+        previousPlayer = 1#Just need for ifWin() function
+    else:
+        currentPlayer = 1
+        previousPlayer = 2#Just need for ifWin() function
 
+    if ifWin(previousPlayer, np.copy(board)):#Before taking currentPlayer's move, check if the prevoiusPlayer has already won, if so stop otherwise continue
+        return
+    if ifDraw(np.copy(board)):#This should be equivalent to if currentDepth == 0
+        return
+    
+    emptyCellsRow, emptyCellsCol = np.where(board == 0)
 
+    ListOfNodes.append(np.copy(board))
+    for i in range(currentDepth):#for i in range(#ofBranches)
+        if not emptyCellsRow.size == 0:#and by extension, emptyCellsCol will be .size ==0
+            #print(str(emptyCellsRow.size)+" "+str(board)+" "+str(currentDepth)+" "+str(i))#DEBUG
+            TempBoard = np.copy(board)
+            TempBoard[emptyCellsRow[i],emptyCellsCol[i]] = currentPlayer
+        MinimaxGen(currentDepth,np.copy(TempBoard))
+
+def updateGSvalue(CurrentPlayer, parent_index, child_index):
+    #Note CurrentPlayer is 1 or 2, we need 0 or 1 so every CurrentPlayer needs a -1 when using Lists or np arrays
+    global GSvalues
+    global alpha#Learning Rate
+    GSvalues[CurrentPlayer-1][parent_index] = GSvalues[CurrentPlayer-1][parent_index] + alpha*(GSvalues[CurrentPlayer-1][child_index]-GSvalues[CurrentPlayer-1][parent_index])
+    #makes changes directly to global memory space so no return needed, can debug here
+
+def exploration(CurrentPlayer, board):
+    global GStates
+    emptyCellsRow, emptyCellsCol = np.where(board == 0)
+    randPos = random.randint(0, emptyCellsRow.size-1)
+    ParentIndex = compareRRGetStatePos(board, GStates)
+    boardCOPY = np.copy(board)
+    boardCOPY[emptyCellsRow[randPos], emptyCellsCol[randPos]] = CurrentPlayer#For each statement like this we could check if current position is taken but thats incase things execute bad, sicne we depend on emptyRow emptyCol we assume the place is empty
+    ChildIndex = compareRRGetStatePos(boardCOPY, GStates)
+    return [np.copy(boardCOPY), ParentIndex, ChildIndex]
+    
+def exploitation(CurrentPlayer, board):
+    #Note, there isn't a need for alpha-beta pruning because this is more of a breadth first search style approach, it only looks as far as the current depth
+    global GStates
+    global GSvalues
+    ParentIndex = compareRRGetStatePos(board, GStates)#So find the ParentIndex, basically find current board in GStates
+    childNodeValues = []
+    childNodeGSIndex = []
+    emptyCellsRow, emptyCellsCol = np.where(board == 0)
+    for i in range(emptyCellsRow.size):#Note emptyCellsRow and emptyCellsCol should be and must be the exact same size otherwise somethings has gone badly wrong
+        boardCOPY = np.copy(board)#Just being overly cautious
+        boardCOPY[emptyCellsRow[i],emptyCellsCol[i]] = CurrentPlayer#Looking at a move
+        GSindex = -1#should not be -1 after this for loop, if it is then we have messed up the GStates file.
+        GSindex = compareRRGetStatePos(boardCOPY, GStates)
+        if GSindex == None:
+            print("ERROR, GSindex == None :( This board has not been found: " + str(boardCOPY))
+        childNodeValues.append(GSvalues[CurrentPlayer-1][GSindex])#Find the GSvalue using that index found and add to an array of actions# This is a policy-less action Based approach
+        childNodeGSIndex.append(GSindex)#Each index corresponds to childNodeValues
+    maxCNVLIndecies = [index for index,value in enumerate(childNodeValues) if value==max(childNodeValues)]#chose the max value from the list, if tie pick at random
+    playBoard = np.copy(board)#Actual move to be played
+    randPos = random.randint(0,len(maxCNVLIndecies)-1)
+    playBoard[emptyCellsRow[randPos], emptyCellsCol[randPos]] = CurrentPlayer#Basically this is equivalent to playBoard = GStates[childNodeIndexValuePair[randPos][0]]
+    return [playBoard, ParentIndex, childNodeGSIndex[randPos]]
+    
+def AI_input(CurrentPlayer, board):
+    global epsilon
+    boardCOPY = np.copy(board)
+    if random.random() < epsilon:#Default epsilon = 0.3
+        output = exploration(CurrentPlayer, boardCOPY)#Random Move
+    else:#Hence eploitation = 1-epsilon = 0.7 default
+        output = exploitation(CurrentPlayer, boardCOPY)#Best Move
+    updateGSvalue(CurrentPlayer, output[1], output[2])#Output is (board, ParentIndex, ChildIndex)
+    print("BoardOut")#DEBUG
+    return np.copy(output[0])
+    
 ############################################################
-def Game():
+def Game():#AI Training
     #--Game--
     global win
     global arena
@@ -85,14 +138,13 @@ def Game():
             CurrentPlayer = 2
         else:
             CurrentPlayer = 1
-        while (not AI_input(CurrentPlayer, arena)):#Stuck in loop until we get a good input
-            pass
-        if (ifWin(CurrentPlayer)):
+        arena = AI_input(CurrentPlayer, arena)#Usually, for Human, Stuck in loop until we get a good input
+        if (ifWin(arena, CurrentPlayer)):
             win = True
             break
         if (ifDraw(arena)):
             arena = np.zeros(shape=(3,3))#Arena Reset Until Win
-
+    
 #--Game Title--
 print("""
   ________________   _________   ______   __________  ______         ___    ____   __________  ___    _____   ____________ 
@@ -104,9 +156,13 @@ print("""
 
 #--Menu--
 menuIn = 0
-print("\nStart Training\nChoose Number of Epochs:")
-menuIn = int(input())
+while int(menuIn < 1):
+    print("\nStart Training\nChoose Number of Epochs:")
+    menuIn = int(input())
 for n in range(menuIn):
     Game()
-    print("Game Over: " + str(n))
+    print("Game Over: " + str(n) + " Saving to file")
+    np.savez("StateValuesP1", GSvalues[0])
+    np.savez("StateValuesP2", GSvalues[1])
+#print("Saving the GSvalues to file, Note that the training is cumulative everytime it is run, if you want to train from the begining replace the StateValuesP#.npz files with StateValuesP#Default.npz files")
 print("Training Over. Good Bye!")
