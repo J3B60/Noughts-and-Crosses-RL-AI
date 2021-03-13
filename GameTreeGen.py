@@ -33,12 +33,12 @@ def ifDraw(Localarena):
     else:
         return False
 
-def MinimaxGen(Depth,board):
+def MinimaxGen(Depth,board):#Recursive function
     global ListOfNodes
     currentDepth = Depth-1
+    ListOfNodes.append(np.copy(board))#Save New Node(GameState)#After this check if node should have any branches if not its a leaf
     if currentDepth ==0:#Ignore last node with branch=1, only go up to parent node with two branches, the leaves are the end states
         return
-
     if currentDepth%2 == 0:
         currentPlayer = 2
         previousPlayer = 1#Just need for ifWin() function
@@ -53,23 +53,7 @@ def MinimaxGen(Depth,board):
         return
     
     emptyCellsRow, emptyCellsCol = np.where(board == 0)
-    ###################################################
-    #if len(ListOfNodes) ==0:
-    #    ListOfNodes.append(np.copy(board))
-    #####TEMP, Maybe I can do these check outside this??, I've just made it append all for now just to see if things are faster
-
-    #ListOfNodes[currentDepth].append(np.copy(board))#TEMP? # SPLIT BY DEPTH
-    ListOfNodes.append(np.copy(board))
-
-    #####
-    #resultOfForLoop = False
-    #for i in ListOfNodes:#UniqueBoards
-    #    if np.array_equal(i, board):
-    #        resultOfForLoop = True
-    #        break
-    #if resultOfForLoop == False:
-    #    ListOfNodes.append(np.copy(board))
-    ###################################################
+    
     for i in range(currentDepth):#for i in range(#ofBranches)
         if not emptyCellsRow.size == 0:#and by extension, emptyCellsCol will be .size ==0
             #print(str(emptyCellsRow.size)+" "+str(board)+" "+str(currentDepth)+" "+str(i))#DEBUG

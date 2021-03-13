@@ -6,7 +6,6 @@ from readNPYorZ import readNPYorZ
 from compareRRGetStatePos import compareRRGetStatePos
 
 arena = np.zeros(shape=(3,3), dtype=int)#Tic-Tac-Toe Arena/Grid#Note 0 in grid is empty, 1 = X and 2 = O
-win = False #If winner then end program
 P1UserSymbol = 'O'#User Defaults to O
 P2UserSymbol = 'X'#User Defaults to X
 NumPlayer = 1#Number of Players Defaults to One
@@ -112,7 +111,7 @@ def exploitation(CurrentPlayer, board):
         childNodeGSIndex.append(GSindex)#Each index corresponds to childNodeValues
     maxCNVLIndecies = [index for index,value in enumerate(childNodeValues) if value==max(childNodeValues)]#chose the max value from the list, if tie pick at random
     playBoard = np.copy(board)#Actual move to be played
-    randPos = random.randint(0,len(maxCNVLIndecies)-1)
+    randPos = random.choice(maxCNVLIndecies)#Changed to Choice
     playBoard[emptyCellsRow[randPos], emptyCellsCol[randPos]] = CurrentPlayer#Basically this is equivalent to playBoard = GStates[childNodeIndexValuePair[randPos][0]]
     return [playBoard, ParentIndex, childNodeGSIndex[randPos]]
     
@@ -123,27 +122,30 @@ def AI_input(CurrentPlayer, board):
         output = exploration(CurrentPlayer, boardCOPY)#Random Move
     else:#Hence eploitation = 1-epsilon = 0.7 default
         output = exploitation(CurrentPlayer, boardCOPY)#Best Move
-    updateGSvalue(CurrentPlayer, output[1], output[2])#Output is (board, ParentIndex, ChildIndex)
-    print("BoardOut")#DEBUG
+    ####OLD, found out updating Both AI is better. Problem with AI using prevoius method was that the AI had no idea if it won or lost since the ifWin and ifDraw breaks the loop not allowing AI to update. Also updating both is better since both AI have all board states not just their own moves
+    #updateGSvalue(CurrentPlayer, output[1], output[2])#Output is (board, ParentIndex, ChildIndex)
+    ####
+    updateGSvalue(1, output[1], output[2])#Update BOTH AI
+    updateGSvalue(2, output[1], output[2])#Update BOTH AI
+    #print("BoardOut")#DEBUG
     return np.copy(output[0])
     
 ############################################################
 def Game():#AI Training
     #--Game--
-    global win
     global arena
     CurrentPlayer = 2#Player 1 always goes first
-    while(not win):
+    while(1):
         if (CurrentPlayer == 1):
             CurrentPlayer = 2
         else:
             CurrentPlayer = 1
         arena = AI_input(CurrentPlayer, arena)#Usually, for Human, Stuck in loop until we get a good input
         if (ifWin(arena, CurrentPlayer)):
-            win = True
             break
         if (ifDraw(arena)):
-            arena = np.zeros(shape=(3,3))#Arena Reset Until Win
+            #arena = np.zeros(shape=(3,3), dtype=int)#Arena Reset Until Win #NOTE just end game when draw, otherwise P2 starts first and I don't want to have to deal with that.
+            break#Just end the game and start a new one
     
 #--Game Title--
 print("""
@@ -161,8 +163,15 @@ while int(menuIn < 1):
     menuIn = int(input())
 for n in range(menuIn):
     Game()
+    #print("Game Over: " + str(n))
     print("Game Over: " + str(n) + " Saving to file")
-    np.savez("StateValuesP1", GSvalues[0])
-    np.savez("StateValuesP2", GSvalues[1])
+    np.savez("StateValuesP1", GSvalues[0])#Saves at every Epoch. Storage I/O slows down program
+    np.savez("StateValuesP2", GSvalues[1])#Saves at every Epoch. Storage I/O slow down
+    arena = np.zeros(shape=(3,3), dtype=int)
 #print("Saving the GSvalues to file, Note that the training is cumulative everytime it is run, if you want to train from the begining replace the StateValuesP#.npz files with StateValuesP#Default.npz files")
+
+#print("Saving to File")
+#np.savez("StateValuesP1", GSvalues[0])#Saves at End of program
+#np.savez("StateValuesP2", GSvalues[1])#Saves at End of program
+
 print("Training Over. Good Bye!")
