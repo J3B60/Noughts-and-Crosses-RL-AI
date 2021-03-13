@@ -56,32 +56,6 @@ class Window(QMainWindow):
         self.btnList[7].clicked.connect(lambda: self.GameInput(7))
         self.btnList[8].clicked.connect(lambda: self.GameInput(8))
             
-        #-buttons-
-        #self.cell00 = self.findChild(QPushButton, "cell00")
-        #self.cell01 = self.findChild(QPushButton, "cell01")
-        #self.cell02 = self.findChild(QPushButton, "cell02")
-        #self.cell10 = self.findChild(QPushButton, "cell10")
-        #self.cell11 = self.findChild(QPushButton, "cell11")
-        #self.cell12 = self.findChild(QPushButton, "cell12")
-        #self.cell20 = self.findChild(QPushButton, "cell20")
-        #self.cell21 = self.findChild(QPushButton, "cell21")
-        #self.cell22 = self.findChild(QPushButton, "cell22")
-
-        #self.cell00.clicked.connect(lambda: self.GameInput(0))#TODO GameInput func
-        #self.cell01.clicked.connect(lambda: self.GameInput(1))
-        #self.cell02.clicked.connect(lambda: self.GameInput(2))
-        #self.cell10.clicked.connect(lambda: self.GameInput(3))
-        #self.cell11.clicked.connect(lambda: self.GameInput(4))
-        #self.cell12.clicked.connect(lambda: self.GameInput(5))
-        #self.cell20.clicked.connect(lambda: self.GameInput(6))
-        #self.cell21.clicked.connect(lambda: self.GameInput(7))
-        #self.cell22.clicked.connect(lambda: self.GameInput(8))
-
-        #----menuBar----
-        #menubar = self.findChild(QMenuBar, "menubar")
-
-        #---menuSettings---
-        #menuSettings = self.findChild(QMenu, "menuSettings")
         actionHuman_vs_Human = self.findChild(QAction, "actionHuman_vs_Human")
         actionAI_vs_Human = self.findChild(QAction, "actionAI_vs_Human")
         actionHuman_vs_AI = self.findChild(QAction, "actionHuman_vs_AI")
@@ -189,14 +163,6 @@ def SymbolSetup():
     global P2UserSymbol
     P1UserSymbol = None
     P2UserSymbol = None
-    #We could do only X/O but where is the fun in that
-    #while(not (P1UserSymbol == "X" or  P1UserSymbol == "O")):
-    #    print("Player 1 Choose your symbol (X/O):")
-    #    P1UserSymbol = input().capitalize()
-    #    if P1UserSymbol == "X":
-    #        P2UserSymbol = "O"
-    #    else:
-    #        P2UserSymbol = "X"
     while(P1UserSymbol == None):
         print("Player 1 Choose your symbol: ")
         P1UserSymbol = input().capitalize()
@@ -252,7 +218,6 @@ def AI_input(CurrentPlayer, board):
         output = exploration(CurrentPlayer, boardCOPY)#Random Move
     else:#Hence eploitation = 1-epsilon = 0.7 default
         output = exploitation(CurrentPlayer, boardCOPY)#Best Move
-    #updateGSvalue(CurrentPlayer, output[1], output[2])#Output is (board, ParentIndex, ChildIndex)#BAD
     updateGSvalue(1, output[1], output[2])
     updateGSvalue(2, output[1], output[2])
     #print("BoardOut")#DEBUG
@@ -267,10 +232,10 @@ def Game(btnPos):
         return None
     #print(arena)#DEBUG
     if (ifWin(arena, CurrentPlayer)):
-        #print("Player " + str(CurrentPlayer) + " Wins!")
+        #print("Player " + str(CurrentPlayer) + " Wins!")#DEBUG console
         return CurrentPlayer#END GAME
     if (ifDraw(arena)):
-        #print("Draw!")
+        #print("Draw!")#DEBUG console
         return 0#END GAME
     if (CurrentPlayer == 1):
         CurrentPlayer = 2

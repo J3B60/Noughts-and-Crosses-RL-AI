@@ -57,29 +57,12 @@ def PlayerInput(CurrentPlayer):
         return True#Return Change made
     return False#Else return Change not made
 
-#def PlayerSetup():
-    #--Pre-Game Player Setup--
-#    global NumPlayer
- #   NumPlayer = 0
-  #  while (NumPlayer < 1 or NumPlayer > 2):
-   #     print("1 or 2 Player? (1-2):")
-    #    NumPlayer = int(input())
-        #TEMP
-    
 def SymbolSetup():
     #--Pre-Game Symbol setup--
     global P1UserSymbol
     global P2UserSymbol
     P1UserSymbol = None
     P2UserSymbol = None
-    #We could do only X/O but where is the fun in that
-    #while(not (P1UserSymbol == "X" or  P1UserSymbol == "O")):
-    #    print("Player 1 Choose your symbol (X/O):")
-    #    P1UserSymbol = input().capitalize()
-    #    if P1UserSymbol == "X":
-    #        P2UserSymbol = "O"
-    #    else:
-    #        P2UserSymbol = "X"
     while(P1UserSymbol == None):
         print("Player 1 Choose your symbol: ")
         P1UserSymbol = input().capitalize()
@@ -166,7 +149,6 @@ def AI_input(CurrentPlayer, board):
         output = exploration(CurrentPlayer, boardCOPY)#Random Move
     else:#Hence eploitation = 1-epsilon = 0.7 default
         output = exploitation(CurrentPlayer, boardCOPY)#Best Move
-    #updateGSvalue(CurrentPlayer, output[1], output[2])#Output is (board, ParentIndex, ChildIndex)#BAD
     updateGSvalue(1, output[1], output[2])
     updateGSvalue(2, output[1], output[2])
     #print("BoardOut")#DEBUG
@@ -222,7 +204,6 @@ def Game_HvA():#Player 1, AI = 2
             break
         if ifDraw(arena):
             print("Draw!")
-            #arena = np.zeros(shape=(3,3))#Arena Reset Until Win
             break
 
 #####
@@ -248,7 +229,6 @@ def Game_AvH():#AI = 1, Player 2
             break#Break should stop loop anyway
         if (ifDraw(arena)):
             print("Draw!")
-            #arena = np.zeros(shape=(3,3))#Arena Reset Until Win
             break
 
 #--Game Title--
