@@ -16,3 +16,6 @@ This program takes the intersection of the game tree set and symbol combination 
 
 UniqueGSwRotReflecGen.py reduces the game state set to an even smaller 765 by removing all duplicate boards that are symmetrical or rotations of each other, using the compareRotReflec.py function. The output is saved to the file “gameStatesWOreflectrot.npz”
 GSvalueGen.py generates the game state values for the learning. Wins =1, Lose = -1, Draw = 0 and all other boards begin with 0.5 [3]. Each game state value corresponds to the game state in the unique game state file.
+
+## Screenshot
+![AIwinsGUIexample](https://user-images.githubusercontent.com/39916226/112861676-ed016b80-90ac-11eb-8d36-b062f9ae0690.png)
